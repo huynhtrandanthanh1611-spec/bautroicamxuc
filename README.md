@@ -118,6 +118,15 @@ npm run test:ui
 - Khi mất mạng, hiệu ứng trên máy học sinh vẫn xuất hiện và có thông báo chờ gửi. Trình chiếu chỉ nhận sự kiện khi kết nối trở lại. Bộ đếm được lấy lại từ cơ sở dữ liệu; không phát lại toàn bộ hiệu ứng lịch sử.
 - Link học sinh là link công khai có ID khó đoán: ai có link đều có thể bấm. Đây là hoạt động tương tác, không phải hệ thống bầu cử xác thực danh tính.
 
+## Xóa phòng
+
+Trong **Góc giáo viên → Phòng đã tạo**, bấm **Xóa phòng** dưới phòng cần bỏ.
+Kiểm tra tên phòng, chọn **Hủy** để giữ lại hoặc **Xóa vĩnh viễn** để xác nhận.
+Phòng, nội dung, lượt bấm và ảnh liên quan sẽ bị xóa; link cũ ngừng hoạt động.
+Thiết bị đang mở phòng nhận thông báo. Các phòng khác vẫn giữ nguyên.
+Nếu Storage tạm lỗi, đường dẫn ảnh được giữ trong hàng đợi để dọn lại;
+ảnh đang tải được giữ lịch dọn tối đa 24 giờ để tránh bỏ sót.
+
 ## Tài liệu chính thức
 
 - [Node.js](https://nodejs.org/)

@@ -25,6 +25,28 @@ const makePNG = () =>
     .png()
     .toBuffer();
 
+test("xóa phòng: hủy giữ phòng, xác nhận xóa và thông báo cho học sinh", async ({ page, browser }) => {
+  const roomId = await loginAndCreate(page);
+  const studentContext = await browser.newContext();
+  try {
+    const student = await studentContext.newPage();
+    await student.goto(`/s/${roomId}`);
+    await expect(student.getByRole("button", { name: /Con thích/ })).toBeVisible();
+    await page.goto("/teacher");
+    const remove = page.getByRole("button", { name: "Xóa phòng Lớp 1.4 · Hôm nay con thế nào?", exact: true });
+    await remove.click();
+    await page.getByRole("button", { name: "Hủy", exact: true }).click();
+    await expect(remove).toBeVisible();
+    await remove.click();
+    await page.getByRole("button", { name: "Xóa vĩnh viễn", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(remove).toHaveCount(0);
+    await expect(student.getByRole("alert")).toContainText("đã được giáo viên xóa");
+    await page.reload();
+    await expect(remove).toHaveCount(0);
+  } finally { await studentContext.close(); }
+});
+
 test("đủ 3 kiểu nút; dán ảnh/chữ thật; lưu/reload; thiết bị độc lập; bấm nhanh, echo, trình chiếu, reset", async ({
   page,
   browser,

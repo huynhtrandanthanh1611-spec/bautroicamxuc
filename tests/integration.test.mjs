@@ -121,6 +121,37 @@ const png = () =>
     .png()
     .toBuffer();
 
+test("xóa phòng cần quyền và xác nhận; dọn ảnh/lượt, ngắt thiết bị, giữ phòng khác", async () => {
+  const f = await fixture();
+  try {
+    const room = await f.makeRoom("Phòng sẽ xóa");
+    const other = await f.makeRoom("Phòng giữ lại");
+    const path = `/api/teacher/rooms/${room.id}`;
+    assert.equal((await f.request(path, { method: "DELETE", auth: false, body: { confirm: true } })).status, 401);
+    assert.equal((await f.request(path, { method: "DELETE" })).status, 400);
+    const form = new FormData();
+    form.append("image", new Blob([await png()], { type: "image/png" }), "test.png");
+    const uploaded = await f.request(path + "/images", { method: "POST", body: form });
+    assert.equal(uploaded.status, 201);
+    assert.equal((await f.request(uploaded.data.imageUrl)).status, 200);
+    const { client } = await f.socket(room.id);
+    await send(client, { eventId: randomUUID(), buttonIndex: 0, epoch: 0 });
+    let deleted = false;
+    client.once("room:deleted", () => { deleted = true; });
+    const disconnected = new Promise((resolve) => client.once("disconnect", resolve));
+    assert.equal((await f.request(path, { method: "DELETE", body: { confirm: true } })).status, 200);
+    await disconnected;
+    assert.equal(deleted, true);
+    assert.equal((await f.request(`/api/rooms/${room.id}`)).status, 404);
+    assert.equal((await f.request(uploaded.data.imageUrl)).status, 404);
+    assert.equal((await f.request(`/api/rooms/${other.id}`)).status, 200);
+    assert.deepEqual((await f.request("/api/teacher/rooms")).data.map((r) => r.id), [other.id]);
+    await f.restart();
+    assert.equal((await f.request(`/api/rooms/${room.id}`)).status, 404);
+    assert.equal((await f.request(`/api/rooms/${other.id}`)).status, 200);
+  } finally { await f.close(); }
+});
+
 test("lưu 3 kiểu nút, ảnh trong suốt, tải lại và khởi động lại máy chủ", async () => {
   const f = await fixture();
   try {

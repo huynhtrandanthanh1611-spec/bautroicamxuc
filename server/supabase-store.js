@@ -32,6 +32,10 @@ export function openSupabaseStore({ url, key, bucket = "sky-images", client } = 
   const cached = new Map();
   const downloading = new Map();
   let cacheSize = 0;
+  function evict(id) {
+    const entry = cached.get(id);
+    if (entry) { cacheSize -= entry.value.bytes.length; cached.delete(id); }
+  }
   const storageError = () => new AppError(
     "Chưa kết nối được kho ảnh Supabase. Kiểm tra project có bị tạm dừng, khóa và bucket; sau đó thử lại.", 503,
   );
@@ -70,6 +74,8 @@ export function openSupabaseStore({ url, key, bucket = "sky-images", client } = 
     const { data, error } = await storage.download(meta.object_path);
     if (error || !data) throw storageError();
     const bytes = Buffer.from(await data.arrayBuffer());
+    // Một lượt tải đang chạy không được đưa ảnh của phòng vừa xóa vào cache.
+    if (!(await rpc("media_get", { id }))) return null;
     const value = { bytes, mime: meta.mime };
     while (cached.size && cacheSize + bytes.length > 16 * 1024 * 1024) {
       const oldest = cached.keys().next().value;
@@ -79,6 +85,13 @@ export function openSupabaseStore({ url, key, bucket = "sky-images", client } = 
     cached.set(id, { value, until: Date.now() + 600000 });
     cacheSize += bytes.length;
     return value;
+  }
+  async function cleanDeletedMedia() {
+    const pending = await rpc("deleted_media_list");
+    if (!pending.length) return;
+    const { error } = await storage.remove(pending.map((m) => m.object_path));
+    if (error) throw storageError();
+    await rpc("deleted_media_done", { ids: pending.map((m) => m.id) });
   }
   return {
     provider: "supabase",
@@ -97,6 +110,13 @@ export function openSupabaseStore({ url, key, bucket = "sky-images", client } = 
     create: (name) => rpc("create", { id: randomUUID(), name, buttons: defaults() }),
     save: (id, input) => rpc("save", { ...input, id }),
     reset: (id) => rpc("reset", { id }),
+    async deleteRoom(id) {
+      const mediaIds = await rpc("room_delete", { id });
+      mediaIds.forEach(evict);
+      // Phòng đã xóa ngay; giữ hàng đợi nếu Storage tạm lỗi để dọn lại sau.
+      try { await cleanDeletedMedia(); }
+      catch { console.warn("Ảnh của phòng đã xóa sẽ được dọn lại ở lượt kế tiếp."); }
+    },
     react: (id, eventId, index, epoch) => rpc("react", { id, eventId, index, epoch }),
     async saveMedia(roomId, bytes, credit = null) {
       const id = randomUUID();
@@ -105,7 +125,12 @@ export function openSupabaseStore({ url, key, bucket = "sky-images", client } = 
       const { error } = await storage.upload(path, bytes, { contentType: "image/webp", cacheControl: "31536000", upsert: false });
       // Nếu mất kết nối giữa các bước, bản giữ chỗ giúp dọn ảnh dở dang sau 24 giờ.
       if (error) throw storageError();
-      await rpc("media_ready", { id });
+      try { await rpc("media_ready", { id }); }
+      catch (error) {
+        // Upload có thể kết thúc sau khi phòng đã bị xóa.
+        try { await storage.remove([path]); } catch { /* Hàng đợi dọn sẽ thử lại. */ }
+        throw error;
+      }
       return { imageId: id, imageUrl: "/media/" + id, credit };
     },
     async getMedia(id) {
@@ -118,6 +143,7 @@ export function openSupabaseStore({ url, key, bucket = "sky-images", client } = 
       return pending;
     },
     async clean() {
+      await cleanDeletedMedia();
       const unused = await rpc("clean");
       if (!unused.length) return;
       const { error } = await storage.remove(unused.map((m) => m.object_path));

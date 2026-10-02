@@ -190,6 +190,12 @@ export function openStore(directory) {
       db.prepare("UPDATE rooms SET counts='[0,0,0]',count_seq=count_seq+1,epoch=epoch+1 WHERE id=?").run(id);
       return get(id);
     }),
+    deleteRoom: (id) => transaction(() => {
+      if (!get(id)) throw new AppError("Không tìm thấy phòng.", 404);
+      db.prepare("DELETE FROM events WHERE room_id=?").run(id);
+      db.prepare("DELETE FROM media WHERE room_id=?").run(id);
+      db.prepare("DELETE FROM rooms WHERE id=?").run(id);
+    }),
     saveMedia: (roomId, bytes, credit = null) => transaction(() => {
       const total = db.prepare("SELECT COALESCE(sum(length(bytes)),0) AS total FROM media WHERE room_id=?").get(roomId).total;
       if (total + bytes.length > 40 * 1024 * 1024) throw new AppError(

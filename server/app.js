@@ -256,6 +256,15 @@ export async function createApplication(config) {
     io.to(`sky:${req.params.id}`).emit("room:updated", saved);
     res.json(saved);
   });
+  app.delete("/api/teacher/rooms/:id", teacherOnly, async (req, res) => {
+    if (req.body?.confirm !== true)
+      throw new AppError("Vui lòng xác nhận xóa phòng.");
+    await getRoom(req.params.id);
+    await store.deleteRoom(req.params.id);
+    io.to(`sky:${req.params.id}`).emit("room:deleted");
+    io.in(`sky:${req.params.id}`).disconnectSockets(true);
+    res.json({ ok: true });
+  });
   app.post("/api/teacher/rooms/:id/reset", teacherOnly, async (req, res) => {
     if (req.body?.confirm !== true)
       throw new AppError("Vui lòng xác nhận đặt lại bộ đếm.");

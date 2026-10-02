@@ -12,7 +12,7 @@ export async function createSupabaseHarness() {
   await db.exec("SET ROLE service_role");
   const files = new Map();
   const buckets = new Map();
-  const control = { failAfterReactCommit: false, failUpload: false, failDownload: false, downloads: 0 };
+  const control = { failAfterReactCommit: false, failUpload: false, failDownload: false, failDelete: false, downloads: 0 };
   const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
   const client = createClient("https://test.supabase.co", "sb_secret_test_only", {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -51,6 +51,7 @@ export async function createSupabaseHarness() {
             return json({ Id: key, Key: key });
           }
           if (method === "DELETE") {
+            if (control.failDelete) return json({ message: "test delete failed", statusCode: "503" }, 503);
             for (const prefix of JSON.parse(options.body).prefixes) files.delete(key + "/" + prefix);
             return json([]);
           }

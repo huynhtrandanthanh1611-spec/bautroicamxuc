@@ -17,6 +17,7 @@ test("Supabase: chặn anon/authenticated ở cả RPC và bảng; chạy lại 
       await h.db.exec("RESET ROLE; SET ROLE " + role);
       await assert.rejects(h.db.query("SELECT public.sky_app_rpc('list', '{}')"), /permission denied/);
       await assert.rejects(h.db.query("SELECT * FROM sky_app.rooms"), /permission denied/);
+      await assert.rejects(h.db.query("SELECT * FROM sky_app.deleted_media"), /permission denied/);
       await assert.rejects(h.db.query("UPDATE sky_app.rooms SET name='Bị sửa'"), /permission denied/);
     }
     await h.db.exec("RESET ROLE");
@@ -117,4 +118,25 @@ test("Supabase: cấu hình thiếu/sai dừng rõ ràng, không tự lưu vào 
   assert.throws(() => openSupabaseStore(), /SUPABASE_URL/);
   assert.throws(() => openSupabaseStore({ url: "https://example.supabase.co", key: "sb_publishable_fake" }), /Secret key/);
   await assert.rejects(createApplication({ password: "Test-password-with-length", storageProvider: "supabase" }), /SUPABASE_URL/);
+});
+
+test("Supabase: xóa phòng vẫn hoàn tất khi Storage lỗi và dọn ảnh lại sau", async () => {
+  const h = await createSupabaseHarness();
+  const store = openSupabaseStore({ client: h.client });
+  try {
+    await store.initialize("test");
+    const room = await store.create("Phòng xóa");
+    const image = await store.saveMedia(room.id, Buffer.from("image-test"));
+    await store.getMedia(image.imageId);
+    h.control.failDelete = true;
+    await store.deleteRoom(room.id);
+    assert.equal(await store.get(room.id), null);
+    assert.equal(await store.getMedia(image.imageId), null);
+    assert.equal(h.files.size, 1);
+    assert.equal((await h.db.query("SELECT count(*)::integer AS n FROM sky_app.deleted_media")).rows[0].n, 1);
+    h.control.failDelete = false;
+    await store.clean();
+    assert.equal(h.files.size, 0);
+    assert.equal((await h.db.query("SELECT count(*)::integer AS n FROM sky_app.deleted_media")).rows[0].n, 0);
+  } finally { await store.close(); await h.close(); }
 });

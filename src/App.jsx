@@ -27,6 +27,7 @@ import {
   Palette,
   Radio,
   ExternalLink,
+  Trash2,
 } from "lucide-react";
 import { api, copyLink } from "./api";
 import { useRoom } from "./hooks/useRoom";
@@ -198,6 +199,9 @@ function Dashboard() {
   const [name, setName] = useState("Lớp mình hôm nay");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const navigate = useNavigate();
   useEffect(() => {
     api("/api/teacher/rooms")
@@ -218,6 +222,25 @@ function Dashboard() {
       setError(err.message);
     } finally {
       setBusy(false);
+    }
+  }
+  async function deleteRoom() {
+    if (deleting || !deleteTarget) return;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      await api(`/api/teacher/rooms/${deleteTarget.id}`, {
+        method: "DELETE", body: { confirm: true },
+      });
+      setRooms((current) => current.filter((room) => room.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      if (err.status === 404) {
+        setRooms((current) => current.filter((room) => room.id !== deleteTarget.id));
+        setDeleteTarget(null);
+      } else setDeleteError(err.message);
+    } finally {
+      setDeleting(false);
     }
   }
   return (
@@ -271,9 +294,9 @@ function Dashboard() {
         )}
         <div className="room-grid">
           {rooms?.map((room) => (
+            <article className="room-card" key={room.id}>
             <Link
-              className="room-card"
-              key={room.id}
+              className="room-card-link"
               to={`/teacher/room/${room.id}`}
             >
               <div className="room-mini-sky">
@@ -300,9 +323,28 @@ function Dashboard() {
                 </span>
               </p>
             </Link>
+            <button type="button" className="room-delete danger-text"
+              aria-label={`Xóa phòng ${room.name}`}
+              onClick={() => { setDeleteError(""); setDeleteTarget(room); }}>
+              <Trash2 size={16} /> Xóa phòng
+            </button>
+            </article>
           ))}
         </div>
       </main>
+      {deleteTarget && (
+        <Modal title="Xóa phòng?" onClose={() => !deleting && setDeleteTarget(null)}>
+          <p>Thầy cô muốn xóa phòng <strong>{deleteTarget.name}</strong>?</p>
+          <p>Nội dung, ảnh và lượt bấm của phòng sẽ bị xóa vĩnh viễn. Link học sinh và link trình chiếu của phòng sẽ ngừng hoạt động.</p>
+          {deleteError && <p className="message error" role="alert">{deleteError}</p>}
+          <div className="modal-actions">
+            <button type="button" className="secondary" disabled={deleting}
+              onClick={() => setDeleteTarget(null)}>Hủy</button>
+            <button type="button" className="danger-button" disabled={deleting}
+              onClick={deleteRoom}>{deleting ? "Đang xóa…" : "Xóa vĩnh viễn"}</button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

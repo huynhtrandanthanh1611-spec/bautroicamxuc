@@ -44,11 +44,18 @@ CREATE TABLE IF NOT EXISTS sky_app.events (
   PRIMARY KEY(room_id, event_id)
 );
 CREATE INDEX IF NOT EXISTS sky_events_age ON sky_app.events(created_at);
+-- Giữ đường dẫn ảnh cần dọn độc lập với phòng đã xóa; retry qua Storage API.
+CREATE TABLE IF NOT EXISTS sky_app.deleted_media (
+  id uuid PRIMARY KEY,
+  object_path text NOT NULL UNIQUE,
+  created_at bigint NOT NULL
+);
 
 ALTER TABLE sky_app.rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sky_app.media ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sky_app.sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sky_app.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sky_app.deleted_media ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON ALL TABLES IN SCHEMA sky_app FROM PUBLIC, anon, authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA sky_app TO service_role;
 -- service_role của Supabase có BYPASSRLS. Không cấp policy cho trình duyệt.
@@ -129,6 +136,17 @@ BEGIN
     RETURN result;
   ELSIF action = 'media_ready' THEN
     UPDATE sky_app.media SET ready = true WHERE media.id = (payload->>'id')::uuid;
+    IF NOT FOUND THEN RETURN '{"error":"Phòng đã bị xóa trong lúc tải ảnh.","status":404}'::jsonb; END IF;
+    RETURN '{"ok":true}'::jsonb;
+  ELSIF action = 'deleted_media_list' THEN
+    SELECT coalesce(jsonb_agg(to_jsonb(t)), '[]'::jsonb) INTO result
+      FROM (SELECT * FROM sky_app.deleted_media WHERE created_at <= now_ms
+            ORDER BY created_at LIMIT 100) t;
+    RETURN result;
+  ELSIF action = 'deleted_media_done' THEN
+    DELETE FROM sky_app.deleted_media WHERE id IN (
+      SELECT value::uuid FROM jsonb_array_elements_text(payload->'ids')
+    );
     RETURN '{"ok":true}'::jsonb;
   ELSIF action = 'clean' THEN
     DELETE FROM sky_app.sessions WHERE expires_at < now_ms;
@@ -159,7 +177,18 @@ BEGIN
   SELECT * INTO r FROM sky_app.rooms WHERE rooms.id = room_key FOR UPDATE;
   IF NOT FOUND THEN RETURN '{"error":"Không tìm thấy phòng.","status":404}'::jsonb; END IF;
 
-  IF action = 'save' THEN
+  IF action = 'room_delete' THEN
+    SELECT coalesce(jsonb_agg(media.id), '[]'::jsonb) INTO result
+      FROM sky_app.media WHERE media.room_id = r.id;
+    INSERT INTO sky_app.deleted_media(id, object_path, created_at)
+      -- Ảnh đang tải giữ tombstone 24h, tránh upload kết thúc sau lượt dọn.
+      SELECT id, object_path, CASE WHEN ready THEN now_ms ELSE now_ms + 86400000 END
+        FROM sky_app.media WHERE room_id = r.id;
+    DELETE FROM sky_app.events WHERE room_id = r.id;
+    DELETE FROM sky_app.media WHERE room_id = r.id;
+    DELETE FROM sky_app.rooms WHERE id = r.id;
+    RETURN result;
+  ELSIF action = 'save' THEN
     IF r.version <> (payload->>'version')::integer THEN
       RETURN '{"error":"Phòng đã được lưu từ một cửa sổ khác. Hãy tải lại trang trước khi sửa tiếp.","status":409}'::jsonb;
     END IF;

@@ -25,6 +25,7 @@ export function useRoom(roomId, role, onReaction) {
   useEffect(() => {
     let live = true;
     let ready = false;
+    let deleted = false;
     let noticeTimer;
     pending.current.clear();
     seen.current.clear();
@@ -67,6 +68,7 @@ export function useRoom(roomId, role, onReaction) {
       noticeTimer = setTimeout(() => live && setNotice(""), 7000);
     }
     function acceptRoom(next) {
+      if (deleted) return;
       epoch.current = Math.max(epoch.current, next.epoch);
       setRoom((current) =>
         !current || next.version >= current.version
@@ -135,6 +137,7 @@ export function useRoom(roomId, role, onReaction) {
     }
     flushRef.current = flush;
     socket.on("ready", (data) => {
+      if (deleted) return;
       ready = true;
       setConnected(true);
       acceptRoom(data.room);
@@ -152,6 +155,16 @@ export function useRoom(roomId, role, onReaction) {
         setError(err.message);
     });
     socket.on("room:updated", acceptRoom);
+    socket.on("room:deleted", () => {
+      deleted = true;
+      ready = false;
+      pending.current.clear();
+      persist();
+      setConnected(false);
+      setRoom(null);
+      setError("Phòng này đã được giáo viên xóa. Hãy dùng link phòng mới.");
+      socket.disconnect();
+    });
     socket.on("counts", acceptCounts);
     socket.on("epoch", (next) => {
       epoch.current = next;
