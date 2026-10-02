@@ -1,0 +1,67 @@
+BẦU TRỜI CẢM XÚC — TRÌNH CHIẾU VÀ STICKER BAY
+
+ĐIỂM MỚI
+
+- Màn hình trình chiếu của giáo viên nhận cảm xúc từ tất cả học sinh
+  trong cùng phòng, không hiển thị ba nút cảm xúc.
+- Nút "Toàn màn hình" mở rộng màn hình trình chiếu. Nhấn Esc hoặc
+  "Thu nhỏ" để thoát chế độ toàn màn hình.
+- Học sinh vẫn có đúng ba nút để gửi cảm xúc.
+- Nội dung đang bay chỉ gồm ảnh và/hoặc chữ; không có nền màu, viền,
+  thẻ hoặc khoảng đệm của nút gốc. Ảnh PNG trong suốt được giữ nguyên.
+- Ảnh và chữ đi cùng nhau. Ảnh giữ tỉ lệ, chữ tự xuống dòng đầy đủ.
+- Mỗi lượt có vị trí xuất hiện ngẫu nhiên trên bầu trời, đi lên theo
+  đường cong đung đưa riêng và mờ dần sau khoảng 3,4–5 giây.
+- Nội dung không chặn thao tác bấm. Các lượt bay xong được tự động xóa.
+
+CÁCH CẬP NHẬT TRÊN MÁY WINDOWS
+
+1. Tải cap-nhat-trinh-chieu-sticker.zip và giải nén ra thư mục bình thường.
+2. Mở thư mục cap-nhat-trinh-chieu-sticker đã giải nén. Sao chép hai
+   thư mục public và src bằng Ctrl + C.
+3. Nhấn Windows + E, mở:
+   Downloads > Website Bầu trời cảm xúc > bau-troi-cam-xuc
+   Đây là thư mục đang có package.json, src, public và server.
+4. Bấm vùng trống bên trong thư mục bau-troi-cam-xuc rồi nhấn Ctrl + V.
+   Chọn "Replace the files in the destination" khi Windows hỏi.
+5. Giữ npm.cmd run dev chạy trong Terminal. Trong Chrome, nhấn Ctrl + F5
+   trên cả trang giáo viên, trang học sinh và trang trình chiếu đang mở.
+   Nếu đã dừng website, chạy lại npm.cmd run dev tại thư mục dự án.
+
+Gói cập nhật gồm src/components/Sky.jsx, src/styles.css và ảnh nền
+public/images/bau-troi-cam-xuc.png. Giữ nguyên .env và data hiện có.
+
+CÁCH MỞ ĐÚNG MÀN HÌNH CHO GIÁO VIÊN
+
+1. Vào http://localhost:5173/teacher và đăng nhập như trước.
+2. Mở phòng bạn muốn sử dụng.
+3. Bấm "Mở trình chiếu" ở phía trên bên phải. Một tab mới sẽ mở.
+4. Trong tab mới, bấm "Toàn màn hình" ở góc trên bên phải.
+   Tab này có đường dẫn /projector/... và không có ba nút cảm xúc.
+5. Cho học sinh dùng "Sao chép link học sinh" của CÙNG PHÒNG.
+   Link học sinh có đường dẫn /s/... và có ba nút để bấm.
+
+Trong góc chỉnh sửa của giáo viên, ba nút trong khung xem trước vẫn
+có thể bấm thử để thiết kế; bấm thử không cộng bộ đếm của lớp.
+
+THỬ TRÊN MỘT MÁY VÀ DÙNG VỚI CẢ LỚP
+
+Bạn có thể mở một tab trình chiếu và một tab học sinh trên cùng máy
+để kiểm tra. Khi bấm trong tab học sinh, tab trình chiếu cũng nhận
+sticker. Link localhost chỉ dùng trực tiếp trên máy đang chạy dự án.
+Để các điện thoại/máy tính khác dùng link Internet, cần triển khai
+website lên mạng theo HUONG-DAN.html, có máy chủ và lưu trữ bền vững.
+
+ĐÃ KIỂM TRA TRONG TRÌNH DUYỆT
+
+- Build sản phẩm thành công.
+- Ba phiên học sinh độc lập, mỗi phiên bấm 10 lượt cùng lúc: trình
+  chiếu nhận đủ 30; bộ đếm từng nút là 10; không nhân đôi lượt tại máy gửi.
+- Trình chiếu không có nút cảm xúc trong DOM; bật/tắt toàn màn hình được.
+- Cả ba kiểu chữ, ảnh và chữ + ảnh; ảnh ngang không bị kéo méo.
+- Chữ nhiều dòng còn nguyên; không có nền, viền hoặc padding quanh cụm bay.
+- Nội dung nằm trọn trong khung ở đầu, giữa và gần cuối quỹ đạo;
+  vị trí bắt đầu khác nhau; đo ở 390 x 844 và 1440 x 810.
+- Dán ảnh/chữ, lưu/tải lại, bảo vệ quyền sửa, chống trùng, đặt lại đếm
+  trong bài kiểm tra giao diện hiện có vẫn đạt.
+- Chưa kiểm tra trên máy chiếu vật lý, điện thoại thật hoặc website đã deploy.

@@ -1,0 +1,17 @@
+# Dùng để thử Docker trên máy cá nhân. Triển khai thật phải có HTTPS và NODE_ENV=production.
+services:
+  sky:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      TEACHER_PASSWORD: ${TEACHER_PASSWORD:?Chay npm run setup truoc}
+      NODE_ENV: ${NODE_ENV:-development}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3001}
+      DATA_DIR: /var/data
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+    volumes:
+      - sky-data:/var/data
+    restart: unless-stopped
+volumes:
+  sky-data:

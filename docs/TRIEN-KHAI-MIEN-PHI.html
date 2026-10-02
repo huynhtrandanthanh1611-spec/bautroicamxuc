@@ -1,0 +1,287 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hướng dẫn — Bầu trời cảm xúc</title><style>body{font:17px/1.75 system-ui,sans-serif;color:#263b54;background:#f1f8ff;margin:0}main{max-width:920px;margin:35px auto;background:white;padding:44px;border-radius:22px}h1,h2,h3{line-height:1.3;color:#265982}h1{font-size:34px}h2{margin-top:46px;padding-top:16px;border-top:1px solid #dbe9f4}a{color:#246fae;overflow-wrap:anywhere}table{border-collapse:collapse;display:block;overflow:auto;font-size:15px}td,th{border:1px solid #d7e3ed;padding:10px 14px;text-align:left}th{background:#eaf4fc}code{background:#f0f5f9;padding:2px 5px;border-radius:4px}pre{padding:18px;background:#eaf3fa;overflow:auto;border-radius:12px}pre code{padding:0;background:none}li{margin:6px 0}p{margin:13px 0}@media(max-width:650px){main{padding:23px;margin:0;border-radius:0}h1{font-size:28px}}@media print{body{background:white}main{margin:0;padding:0}a{color:inherit}pre,table{break-inside:avoid}}</style></head><body><main><h1>Đưa Bầu trời cảm xúc lên mạng miễn phí</h1>
+
+<p>Bản cập nhật ngày 01/10/2026 dùng <strong>Render Free + Supabase Free</strong>. Supabase giữ phòng, bộ đếm và ảnh; Render chạy website và truyền sticker theo thời gian thực. Cần cả hai dịch vụ để bản code này hoạt động online. Không chọn Starter, Pro, Disk hoặc Render Postgres cho phương án này.</p>
+
+<p>Miễn phí trong hạn mức hiện hành của nhà cung cấp. Bản code không mua gói hoặc tự nâng cấp tài khoản. Chưa có link online cho tới khi hoàn tất triển khai và kiểm tra trên dịch vụ thật.</p>
+
+<h2>1. Cập nhật thư mục đang có trên Windows</h2>
+
+<ol>
+<li>Trong Terminal đang chạy website, nhấn <strong>Ctrl + C</strong> để dừng.</li>
+<li>Sao chép cả thư mục dự án hiện tại thành một thư mục dự phòng.</li>
+<li>Giải nén <code>bau-troi-cam-xuc-supabase-free.zip</code> bằng <strong>Extract All / Giải nén tất cả</strong>.</li>
+<li>Mở thư mục <code>bau-troi-cam-xuc</code> vừa giải nén. Đây là nơi có <code>package.json</code>, các thư mục <code>src</code>, <code>server</code>, <code>supabase</code> và tệp <code>render.yaml</code>.</li>
+<li>Sao chép <strong>nội dung bên trong</strong> thư mục này vào thư mục dự án cũ đang có <code>package.json</code>. Nếu Windows hỏi, chọn <strong>Replace the files in the destination</strong>. Bản tải về không chứa <code>.env</code>, <code>data</code> hoặc <code>node_modules</code>, vì vậy các tệp dữ liệu riêng không bị thay thế.</li>
+<li>Trong VS Code, mở Terminal tại thư mục dự án, chạy từng dòng:</li>
+</ol>
+
+<pre><code>npm.cmd ci
+npm.cmd run setup
+npm.cmd run dev
+</code></pre>
+
+<p>Trên Windows, dùng <code>npm.cmd</code> để tránh lỗi PowerShell chặn <code>npm.ps1</code>. Trên macOS/Linux có thể dùng <code>npm</code>.</p>
+
+<p>Chế độ mặc định vẫn dùng dữ liệu SQLite trên máy. Website thử tại http://localhost:5173/teacher. Giữ nguyên <code>.env</code> cũ nếu chưa muốn chuyển sang Supabase. <code>localhost</code> chưa phải link để học sinh ở thiết bị khác mở qua Internet.</p>
+
+<h2>2. Tạo một project Supabase Free</h2>
+
+<ol>
+<li>Mở https://supabase.com/dashboard và đăng nhập. Bạn có thể dùng tài khoản GitHub.</li>
+<li>Chọn hoặc tạo một <strong>Organization</strong> có gói <strong>Free</strong>.</li>
+<li>Chọn <strong>New project</strong>. Đặt tên <code>bau-troi-cam-xuc</code>.</li>
+<li>Tạo mật khẩu database mạnh, lưu riêng. Đây không phải mật khẩu vào trang giáo viên.</li>
+<li>Chọn khu vực gần Việt Nam, ví dụ <strong>Singapore</strong>, rồi tạo project. Chờ project sẵn sàng.</li>
+<li>Nếu hiện yêu cầu nâng lên Pro vì đã hết số project Free, dừng tại đó; không nâng cấp và không xóa project cũ đang dùng. Kiểm tra hạn mức của tài khoản trước.</li>
+</ol>
+
+<p>Nên dùng project riêng cho website này. Nếu đã có project cùng tên, kiểm tra nội dung và dùng lại đúng project, không tạo trùng.</p>
+
+<h2>3. Tạo cấu trúc dữ liệu — chỉ cần làm một lần</h2>
+
+<ol>
+<li>Trong VS Code, mở thư mục <code>supabase</code> → tệp <strong><code>001_sky.sql</code></strong>.</li>
+<li>Bấm vào nội dung tệp, nhấn <strong>Ctrl + A</strong>, rồi <strong>Ctrl + C</strong>.</li>
+<li>Trên trang Supabase của đúng project, vào <strong>SQL Editor → New query</strong>.</li>
+<li>Dán toàn bộ nội dung vừa sao chép, rồi bấm <strong>Run</strong>.</li>
+<li>Chờ thông báo thành công. Nếu báo lỗi, giữ lại nội dung lỗi để kiểm tra; không bỏ bớt đoạn cấp quyền ở cuối tệp.</li>
+</ol>
+
+<p>Các bảng được đặt trong schema riêng <code>sky_app</code>. Bảng có RLS và không cấp quyền cho người truy cập công khai. Chỉ máy chủ của website dùng khóa bí mật để truy cập. Không cần bật Supabase Realtime, vì ứng dụng đang dùng Socket.IO trên Render.</p>
+
+<p>Kho ảnh <strong>Private</strong> tên <code>sky-images</code> sẽ được máy chủ tạo qua API khi khởi động lần đầu. Không cần tạo policy cho học sinh và không cần chuyển bucket sang Public.</p>
+
+<h2>4. Lấy hai thông tin kết nối</h2>
+
+<p>Trong project Supabase:</p>
+
+<ul>
+<li><strong>Project URL</strong>: địa chỉ dạng <code>https://...supabase.co</code>. Tìm trong <strong>Connect</strong> hoặc <strong>Integrations → Data API</strong>.</li>
+<li><strong>Secret key</strong>: vào <strong>Settings → API Keys</strong>, tạo/lấy Secret key bắt đầu bằng <code>sb_secret_</code>. Nếu project chỉ có khóa cũ, <code>service_role</code> cũng được hỗ trợ. <strong>Không dùng publishable key hoặc anon key</strong>.</li>
+</ul>
+
+<p>Chỉ dán Secret key vào <code>.env</code> riêng trên máy hoặc mục <strong>Environment</strong> của Render. Không gửi khóa qua chat, không chụp màn hình chứa khóa, không đặt trong <code>src</code>, không thêm tiền tố <code>VITE_</code>, không đưa vào GitHub hay link học sinh.</p>
+
+<h2>5. Kiểm tra Supabase từ máy tính trước</h2>
+
+<p>Trong <code>.env</code> đang nằm cạnh <code>package.json</code>, thêm hoặc sửa các dòng dưới đây. Thay phần ví dụ bằng thông tin thật, mỗi biến chỉ xuất hiện một lần:</p>
+
+<pre><code>STORAGE_PROVIDER=supabase
+SUPABASE_URL=https://ma-project-cua-ban.supabase.co
+SUPABASE_SECRET_KEY=sb_secret_khoa_rieng_cua_ban
+SUPABASE_BUCKET=sky-images
+</code></pre>
+
+<p>Giữ nguyên <code>TEACHER_PASSWORD</code>, <code>PORT=3001</code>, <code>NODE_ENV=development</code>, <code>TRUST_PROXY=0</code>. Để trống <code>PUBLIC_URL</code> khi thử bằng localhost. Nhấn <strong>Ctrl + S</strong> rồi chạy:</p>
+
+<pre><code>npm.cmd run check:supabase
+npm.cmd run dev
+</code></pre>
+
+<p>Lệnh đầu cần báo kết nối thành công. Lệnh thứ hai kiểm tra và tạo kho ảnh. Mở trang giáo viên, tạo một phòng thử, tải một ảnh, lưu rồi tải lại trang. Thử dừng và chạy lại máy chủ: phòng và ảnh phải còn.</p>
+
+<p><strong>Phòng SQLite cũ không tự chuyển sang Supabase.</strong> Dữ liệu cũ vẫn nằm trong <code>data/sky.sqlite</code>. Cách dễ nhất cho lần đầu là tạo lại phòng và tải ảnh trong chế độ Supabase. Muốn xem lại phòng cũ, dừng máy chủ, đổi <code>STORAGE_PROVIDER=sqlite</code>, rồi chạy lại. Hai chế độ có dữ liệu riêng.</p>
+
+<h2>6. Đưa mã nguồn lên GitHub</h2>
+
+<p>Có thể dùng GitHub Desktop tại https://desktop.github.com/ để tránh gõ lệnh Git:</p>
+
+<ol>
+<li>Đăng nhập đúng tài khoản GitHub.</li>
+<li>Chọn <strong>File → New repository</strong>, đặt tên <code>bau-troi-cam-xuc</code> và chọn chỗ lưu.</li>
+<li>Sao chép mã nguồn vào repository mới. <code>package.json</code> và <code>render.yaml</code> phải nằm ngay thư mục gốc repository, không bị lồng thêm một thư mục <code>bau-troi-cam-xuc</code> bên ngoài.</li>
+<li>Giữ <code>src</code>, <code>server</code>, <code>public</code>, <code>supabase</code>, <code>scripts</code>, <code>tests</code>, <code>docs</code> và các tệp cấu hình. <strong>Không chép <code>.env</code>, <code>data</code>, <code>node_modules</code>, <code>backups</code>, <code>dist</code> hoặc kết quả kiểm thử</strong>. <code>.gitignore</code> có sẵn giúp loại các tệp này.</li>
+<li>Xem danh sách thay đổi, gõ ghi chú cập nhật rồi chọn <strong>Commit to main</strong>.</li>
+<li>Chọn <strong>Publish repository</strong>; giữ repository <strong>Private</strong>. Cấp quyền cho Render đọc repository này ở bước tiếp theo.</li>
+</ol>
+
+<p>Nếu đã có repository đúng dự án, cập nhật repository đó và chọn <strong>Push origin</strong>. Không cần tạo repository mới. GitHub chỉ giữ mã nguồn; bản này không chạy máy chủ bằng GitHub Pages.</p>
+
+<h2>7. Tạo website trên Render Free</h2>
+
+<ol>
+<li>Mở https://dashboard.render.com/ và đăng nhập.</li>
+<li>Chọn <strong>New → Blueprint</strong>, kết nối GitHub và chọn repository vừa chuẩn bị.</li>
+<li>Render đọc <code>render.yaml</code> trong bản mới. Kiểm tra: <strong>một Web Service</strong>, <strong>plan: Free</strong>, khu vực <strong>Singapore</strong>; <strong>không có Disk hoặc Render Postgres</strong>.</li>
+<li>Điền các biến khi được hỏi:</li>
+</ol>
+
+<table>
+<thead>
+<tr>
+  <th>Tên biến</th>
+  <th>Nội dung điền</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>TEACHER_PASSWORD</code></td>
+  <td>Mật khẩu riêng cho giáo viên, ít nhất 12 ký tự</td>
+</tr>
+<tr>
+  <td><code>SUPABASE_URL</code></td>
+  <td>Project URL vừa lấy</td>
+</tr>
+<tr>
+  <td><code>SUPABASE_SECRET_KEY</code></td>
+  <td>Secret key vừa lấy, lưu dưới dạng biến bí mật</td>
+</tr>
+</tbody>
+</table>
+
+<p>Các biến còn lại đã có trong tệp: <code>STORAGE_PROVIDER=supabase</code>, <code>SUPABASE_BUCKET=sky-images</code>, <code>NODE_ENV=production</code>, <code>NODE_VERSION=24</code>, <code>TRUST_PROXY=1</code>.</p>
+
+<p>Nếu máy thử và Render cùng dùng một project Supabase, hãy dùng cùng <code>TEACHER_PASSWORD</code>; hai máy chủ dùng mật khẩu khác nhau sẽ thu hồi các phiên giáo viên của nhau. Dừng máy chủ thử trước khi dùng online để mọi học sinh cùng kết nối về Render.</p>
+
+<ol start="5">
+<li>Kiểm tra dịch vụ hiển thị <strong>Free / $0</strong>. Nếu giao diện đưa ra dịch vụ tính tiền hoặc mở sẵn cấu hình Starter cũ, dừng và kiểm tra lại đúng tệp <code>render.yaml</code> mới.</li>
+<li>Tạo Blueprint và chờ trạng thái <strong>Live</strong>. Dùng URL HTTPS do Render cấp. Website không cần mua tên miền.</li>
+</ol>
+
+<p>Nếu chọn <strong>New → Web Service</strong> thủ công, dùng:</p>
+
+<table>
+<thead>
+<tr>
+  <th>Mục</th>
+  <th>Giá trị</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Language</td>
+  <td>Node</td>
+</tr>
+<tr>
+  <td>Branch</td>
+  <td>main hoặc nhánh chứa bản mới</td>
+</tr>
+<tr>
+  <td>Root directory</td>
+  <td>Để trống nếu <code>package.json</code> ở gốc</td>
+</tr>
+<tr>
+  <td>Build command</td>
+  <td><code>npm ci --include=dev &amp;&amp; npm run build</code></td>
+</tr>
+<tr>
+  <td>Start command</td>
+  <td><code>npm start</code></td>
+</tr>
+<tr>
+  <td>Instance type</td>
+  <td>Free</td>
+</tr>
+<tr>
+  <td>Instances</td>
+  <td>1</td>
+</tr>
+<tr>
+  <td>Health check</td>
+  <td><code>/api/health</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>Thêm đầy đủ các biến môi trường ở trên. Không cần đặt <code>PORT</code> hoặc <code>PUBLIC_URL</code>: Render cấp cổng và <code>RENDER_EXTERNAL_URL</code> tự động. Nếu sau này dùng tên miền riêng, đặt <code>PUBLIC_URL</code> bằng đúng URL HTTPS của tên miền đó.</p>
+
+<h2>8. Lấy link học sinh và trình chiếu</h2>
+
+<ol>
+<li>Mở URL Render được cấp, thêm <code>/teacher</code> ở cuối.</li>
+<li>Đăng nhập bằng mật khẩu giáo viên đã đặt trên Render.</li>
+<li>Tạo hoặc mở phòng, chỉnh đủ ba nút rồi bấm <strong>Lưu thay đổi</strong>.</li>
+<li>Bấm <strong>Sao chép link học sinh</strong> để gửi cho lớp.</li>
+<li>Trên máy giáo viên, bấm <strong>Mở trình chiếu → Toàn màn hình</strong>. Trang trình chiếu không có ba nút bấm. Sticker cả lớp xuất hiện rải ngẫu nhiên, chữ/ảnh không nằm trong khung.</li>
+</ol>
+
+<p>Link học sinh online bắt đầu bằng <code>https://</code> và tên miền Render, không phải <code>localhost</code> hay địa chỉ Supabase. Sau khi triển khai thành công, bạn có thể tắt VS Code; máy chủ chạy trên Render.</p>
+
+<h2>9. Kiểm tra trước khi dùng với lớp</h2>
+
+<ul>
+<li>Dùng điện thoại mở link học sinh bằng 4G/5G; xem đúng cả ba nút và ảnh đã lưu.</li>
+<li>Bấm nhanh nhiều lần; sticker xuất hiện ngay trên điện thoại và truyền lên trình chiếu.</li>
+<li>Thử hai thiết bị học sinh cùng lúc; bộ đếm cộng đủ lượt, không phải đếm số học sinh.</li>
+<li>Trang trình chiếu không có ba nút; cụm chữ/ảnh hiển thị đủ và không có khung nền.</li>
+<li>Tải lại trang giáo viên; nội dung và số đếm còn. Thử tải ảnh, dán ảnh và tìm ảnh thật.</li>
+<li>Mở cửa sổ ẩn danh: link học sinh dùng ngay, nhưng đường dẫn <code>/teacher</code> vẫn yêu cầu mật khẩu.</li>
+<li>Khi chưa có lớp đang dùng, khởi động lại dịch vụ Render và kiểm tra phòng/ảnh còn trong Supabase.</li>
+</ul>
+
+<p>Đã có các kiểm thử tự động trong bộ mã; vẫn phải kiểm tra những bước này trên tài khoản và mạng thật của bạn.</p>
+
+<h2>10. Hạn mức và việc cần nhớ</h2>
+
+<ul>
+<li>Render Free nghỉ sau 15 phút không có lưu lượng đến. Lần truy cập tiếp theo có thể cần khoảng một phút để khởi động; mở trang trước giờ học vài phút.</li>
+<li>Supabase Free có hạn mức 500 MB database, 1 GB ảnh và hạn mức truyền dữ liệu. Project ít hoạt động trong 7 ngày có thể tạm dừng; vào Dashboard để khôi phục trước buổi học nếu cần.</li>
+<li>Hạn mức miễn phí có thể thay đổi. Giữ cả hai tài khoản ở gói Free; kiểm tra mục Usage định kỳ. Không nâng cấp hoặc thêm dịch vụ trả phí để xử lý một lỗi chưa được chẩn đoán.</li>
+<li>Ứng dụng giới hạn 40 MB ảnh/phòng và 800 MB ảnh cho bản Supabase này. Những ngưỡng đó không tính dữ liệu ứng dụng khác trong cùng tài khoản. Ảnh tải lên đã hơn 24 giờ và không còn được nút nào sử dụng sau khi bấm Lưu sẽ được dọn lúc máy chủ đang chạy.</li>
+<li>Khi mạng mất, học sinh vẫn thấy hiệu ứng tại chỗ; các lượt đang chờ được gửi lại trong tối đa 5 phút. Máy chiếu chỉ nhận được sau khi mạng hoạt động.</li>
+<li>Dùng một instance máy chủ. Nếu tự chạy nhiều máy chủ trên cùng database, bộ đếm được bảo vệ nhưng Socket.IO chưa có bộ chuyển tiếp để phát sticker qua nhiều máy chủ.</li>
+</ul>
+
+<h2>11. Sao lưu</h2>
+
+<p>Với dữ liệu SQLite cũ trên máy, <code>npm.cmd run backup</code> vẫn hoạt động khi <code>.env</code> đặt <code>STORAGE_PROVIDER=sqlite</code>.</p>
+
+<p>Với Supabase Free, không coi gói Free là dịch vụ sao lưu tự động. Giữ bản gốc những ảnh đã tải lên và ghi lại cấu hình ba nút. Người hỗ trợ kỹ thuật có thể xuất database bằng hướng dẫn Supabase CLI dưới đây; cần sao lưu riêng các tệp trong bucket <code>sky-images</code>, vì bản dump database không chứa nội dung tệp Storage. Các bảng <code>sky_app</code> và cấu trúc <code>supabase/001_sky.sql</code> phải được giữ cùng bản sao lưu. Không gửi bản sao dữ liệu hoặc khóa bí mật cho học sinh.</p>
+
+<p>Hướng dẫn chính thức: https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore</p>
+
+<h2>12. Lỗi thường gặp</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Thông báo / hiện tượng</th>
+  <th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Supabase chưa có cấu trúc dữ liệu</td>
+  <td>Chạy toàn bộ <code>supabase/001_sky.sql</code> trên đúng project</td>
+</tr>
+<tr>
+  <td>Cần Secret key</td>
+  <td>Dùng <code>sb_secret_...</code> hoặc <code>service_role</code>, không dùng publishable/anon</td>
+</tr>
+<tr>
+  <td>Chưa kết nối được Supabase</td>
+  <td>Kiểm tra Project URL, Secret key, mạng và trạng thái project</td>
+</tr>
+<tr>
+  <td>Bucket cần Private</td>
+  <td>Trong Storage, đặt <code>sky-images</code> về Private</td>
+</tr>
+<tr>
+  <td>Không thấy phòng đã tạo trên máy</td>
+  <td>SQLite và Supabase là hai nơi lưu riêng; kiểm tra <code>STORAGE_PROVIDER</code></td>
+</tr>
+<tr>
+  <td>Render báo thiếu mật khẩu</td>
+  <td>Đặt <code>TEACHER_PASSWORD</code> riêng dài từ 12 ký tự trong Environment</td>
+</tr>
+<tr>
+  <td>Render đòi trả phí / xuất hiện Disk</td>
+  <td>Kiểm tra đang dùng đúng <code>render.yaml</code> Free của bản cập nhật</td>
+</tr>
+<tr>
+  <td>Website mở chậm lần đầu</td>
+  <td>Chờ Render Free khởi động; mở trước giờ học</td>
+</tr>
+<tr>
+  <td>Mất đăng nhập khi chạy cả máy thử và online</td>
+  <td>Dùng cùng mật khẩu nếu dùng cùng project; dừng máy thử khi dùng lớp online</td>
+</tr>
+<tr>
+  <td>Không hiện sticker trên máy chiếu</td>
+  <td>Dùng link của cùng phòng và cùng website Render; kiểm tra trạng thái kết nối</td>
+</tr>
+</tbody>
+</table>
+
+<p>Tài liệu đã đối chiếu ngày 01/10/2026: https://render.com/docs/free, https://render.com/docs/blueprint-spec, https://supabase.com/pricing, https://supabase.com/docs/guides/getting-started/api-keys, https://supabase.com/docs/guides/database/functions, https://supabase.com/docs/guides/storage/buckets/fundamentals.</p>
+</main></body></html>

@@ -1,0 +1,249 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hướng dẫn — Bầu trời cảm xúc</title><style>body{font:17px/1.75 system-ui,sans-serif;color:#263b54;background:#f1f8ff;margin:0}main{max-width:920px;margin:35px auto;background:white;padding:44px;border-radius:22px}h1,h2,h3{line-height:1.3;color:#265982}h1{font-size:34px}h2{margin-top:46px;padding-top:16px;border-top:1px solid #dbe9f4}a{color:#246fae;overflow-wrap:anywhere}table{border-collapse:collapse;display:block;overflow:auto;font-size:15px}td,th{border:1px solid #d7e3ed;padding:10px 14px;text-align:left}th{background:#eaf4fc}code{background:#f0f5f9;padding:2px 5px;border-radius:4px}pre{padding:18px;background:#eaf3fa;overflow:auto;border-radius:12px}pre code{padding:0;background:none}li{margin:6px 0}p{margin:13px 0}@media(max-width:650px){main{padding:23px;margin:0;border-radius:0}h1{font-size:28px}}@media print{body{background:white}main{margin:0;padding:0}a{color:inherit}pre,table{break-inside:avoid}}</style></head><body><main><h1>Hướng dẫn sử dụng “Bầu trời cảm xúc”</h1>
+
+<p>Bạn không cần viết thêm code để dùng phiên bản này. Thực hiện lần lượt các bước dưới đây. Phần A–C giúp chạy thử trên máy; phần D tạo đường link Internet cho học sinh.</p>
+
+<h2>A. Chuẩn bị máy tính</h2>
+
+<ol>
+<li>Tải <strong>Node.js 24 LTS</strong> từ https://nodejs.org/ và cài đặt bằng các lựa chọn mặc định. Npm được cài cùng Node.js. Không chọn Node.js 20 hoặc bản cũ hơn vì dự án dùng SQLite tích hợp trong Node 24.</li>
+<li>Tải và cài <strong>Visual Studio Code</strong> từ https://code.visualstudio.com/.</li>
+<li>Giải nén <code>bau-troi-cam-xuc-supabase-free.zip</code>. Tìm thư mục <code>bau-troi-cam-xuc</code> chứa tệp <code>package.json</code>.</li>
+<li>Mở VS Code → <strong>File → Open Folder…</strong> → chọn thư mục đó. Nếu hỏi có tin cậy thư mục không, chọn tin cậy sau khi đã kiểm tra đây là mã nguồn bạn tải về.</li>
+<li>Chọn <strong>Terminal → New Terminal</strong>. Đây là ô gõ lệnh ở dưới VS Code.</li>
+<li>Gõ lần lượt:</li>
+</ol>
+
+<pre><code>node --version
+npm --version
+</code></pre>
+
+<p>Lệnh đầu cần hiện <code>v24...</code>. Nếu báo không tìm thấy lệnh, đóng và mở lại VS Code sau khi cài Node.js.</p>
+
+<p><strong>Windows:</strong> nếu PowerShell báo chặn <code>npm.ps1</code>, thay <code>npm</code> bằng <code>npm.cmd</code> trong từng lệnh bên dưới. Ví dụ: <code>npm.cmd ci</code>. Không cần thay đổi chính sách bảo mật toàn máy.</p>
+
+<h2>B. Cài và chạy thử</h2>
+
+<p>Gõ từng lệnh, chờ lệnh trước chạy xong:</p>
+
+<pre><code>npm ci
+npm run setup
+</code></pre>
+
+<ul>
+<li><code>npm ci</code> tải các thư viện theo phiên bản đã chốt trong <code>package-lock.json</code>.</li>
+<li><code>npm run setup</code> tạo tệp <code>.env</code> và <strong>mật khẩu giáo viên ngẫu nhiên</strong>. Sao chép mật khẩu được in trong Terminal vào nơi riêng để dùng sau.</li>
+<li>Nếu đã có <code>.env</code>, lệnh setup giữ nguyên tệp. Bạn có thể mở <code>.env</code> trong VS Code để xem lại mật khẩu.</li>
+<li>Nếu tự dùng <code>.env.example</code>, sao chép thành <code>.env</code> và thay giá trị <code>TEACHER_PASSWORD</code> bằng mật khẩu riêng dài ít nhất 12 ký tự. Giá trị ví dụ không được chấp nhận.</li>
+</ul>
+
+<p>Sau đó chạy:</p>
+
+<pre><code>npm run dev
+</code></pre>
+
+<p>Giữ cửa sổ Terminal chạy. Mở trình duyệt và vào:</p>
+
+<p><strong>http://localhost:5173/teacher</strong></p>
+
+<p>Nhập mật khẩu vừa tạo. Bạn sẽ thấy danh sách phòng và ô <strong>Tên phòng mới</strong>.</p>
+
+<p>Muốn dừng chương trình, bấm vào Terminal rồi nhấn <strong>Ctrl + C</strong>. Lần sau chỉ cần mở thư mục và chạy <code>npm run dev</code>, không cần cài lại thư viện hoặc chạy setup.</p>
+
+<h3>Hiểu đúng “localhost”</h3>
+
+<p><code>localhost</code> nghĩa là <strong>chính máy đang mở trình duyệt</strong>. Link <code>http://localhost:5173/s/...</code> hoạt động trên máy giáo viên đang chạy chương trình; khi học sinh mở link đó ở nhà, thiết bị của học sinh sẽ tìm máy chủ trên chính thiết bị học sinh nên không vào được.</p>
+
+<p>Muốn chia sẻ qua Internet, làm phần D. Đừng tắt máy chủ đang chạy thử rồi mong link localhost vẫn dùng được.</p>
+
+<h2>C. Tạo hoạt động trong lớp</h2>
+
+<h3>1. Tạo phòng</h3>
+
+<p>Nhập tên, ví dụ <strong>“Lớp 1.4 — Hôm nay con thế nào?”</strong>, rồi bấm <strong>Tạo phòng tương tác</strong>. Phòng được lưu ngay, có ba nút mẫu để bạn bắt đầu chỉnh sửa.</p>
+
+<h3>2. Chỉnh lần lượt ba nút</h3>
+
+<p>Chọn tab <strong>Nút 1</strong>, <strong>Nút 2</strong>, <strong>Nút 3</strong>. Mỗi tab có các lựa chọn:</p>
+
+<table>
+<thead>
+<tr>
+  <th>Lựa chọn</th>
+  <th>Nội dung cần cung cấp</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Chỉ chữ</td>
+  <td>Gõ chữ; dùng Enter để xuống dòng</td>
+</tr>
+<tr>
+  <td>Chỉ ảnh</td>
+  <td>Chọn, kéo thả, dán hoặc tìm một ảnh</td>
+</tr>
+<tr>
+  <td>Chữ &amp; ảnh</td>
+  <td>Gõ chữ và thêm ảnh; cả hai bay cùng nhau</td>
+</tr>
+</tbody>
+</table>
+
+<p>Bạn có thể chọn màu nền, màu chữ và kéo thanh cỡ chữ. Giữ câu ngắn để học sinh đọc rõ trên điện thoại. Tối đa 60 ký tự và 4 dòng chủ động; cỡ chữ 18–36. Màn hình nhỏ tự điều chỉnh chữ để vừa nút. Nếu màu chữ gần giống màu nền, giao diện nhắc chọn màu dễ đọc hơn.</p>
+
+<p>Khung bên phải là bản xem trước. Bấm nút trong khung để thử hiệu ứng; <strong>bấm thử không tăng bộ đếm</strong>.</p>
+
+<h3>3. Thêm ảnh bằng bốn cách</h3>
+
+<ul>
+<li><strong>Tệp trên máy:</strong> bấm <strong>Chọn tệp</strong>, chọn PNG/JPG/WebP. Muốn thay ảnh thì bấm <strong>Thay ảnh</strong>.</li>
+<li><strong>Kéo thả:</strong> kéo tệp ảnh từ thư mục trên máy vào khung có viền nét đứt.</li>
+<li><strong>Dán ảnh:</strong> sao chép <strong>nội dung ảnh</strong>, bấm vào khung có dòng “Bấm vào đây rồi nhấn Ctrl + V để dán ảnh”, sau đó nhấn Ctrl + V; trên Mac dùng Cmd + V. Có thể dùng ảnh chụp màn hình đã sao chép vào clipboard. Chép tên tệp hoặc chép URL chỉ là chép chữ, không phải dữ liệu ảnh.</li>
+<li><strong>Tìm ảnh:</strong> bấm <strong>Tìm ảnh trên mạng</strong>, nhập từ khóa rồi bấm <strong>Tìm ảnh</strong>. Bấm ảnh thu nhỏ để sử dụng. Từ khóa tiếng Anh như <code>sunflower</code>, <code>smile icon</code>, <code>heart icon</code> có thể cho nhiều lựa chọn hơn. Nguồn là Wikimedia Commons và <strong>không cần API key</strong>. Chọn ảnh phù hợp với trẻ trước khi chia sẻ.</li>
+</ul>
+
+<p>Nếu mất mạng khi tìm ảnh, website hiển thị lỗi; các cách dùng tệp, kéo thả và dán ảnh vẫn hoạt động khi trình duyệt còn kết nối được với máy chủ của website.</p>
+
+<p>Ảnh tối đa 5 MB. Không dùng SVG, GIF động hoặc tệp giả ảnh. PNG trong suốt được giữ độ trong suốt. Ảnh được thu nhỏ giữ nguyên tỉ lệ, không cắt và không kéo méo.</p>
+
+<h3>4. Lưu và chia sẻ</h3>
+
+<ol>
+<li>Bấm <strong>Lưu thay đổi</strong> và chờ thông báo thành công.</li>
+<li>Bấm <strong>Sao chép link học sinh</strong>.</li>
+<li>Dán link vào nơi bạn thường gửi bài cho lớp. Học sinh mở bằng trình duyệt là dùng được, không nhập tên hoặc đăng nhập.</li>
+<li>Khi sửa tiếp, nhớ <strong>Lưu thay đổi</strong>. Các thiết bị đang mở phòng nhận nội dung mới tự động.</li>
+</ol>
+
+<p>Nút sao chép tạm khóa khi bạn còn sửa chưa lưu để tránh gửi nội dung cũ. Trong mục <strong>Cách dùng trong lớp</strong>, bạn cũng có thể chọn và sao chép đường link bằng tay.</p>
+
+<h3>5. Mở màn hình chung</h3>
+
+<p>Bấm <strong>Mở trình chiếu</strong> trên máy nối máy chiếu. Ở tab mới, có nút toàn màn hình ở góc phải. Khi bất kỳ học sinh nào bấm, nội dung bay lên màn hình này.</p>
+
+<p>Giao diện học sinh luôn có ba nút cố định ở dưới; học sinh bấm liên tục hoặc đổi qua lại giữa các nút đều được. Trên trang giáo viên, bộ đếm cập nhật theo <strong>số lượt bấm</strong>. Một học sinh bấm 10 lần nghĩa là 10 lượt, không phải 10 học sinh.</p>
+
+<p>Để bắt đầu vòng mới, bấm <strong>Đặt lại</strong> → đọc thông báo → <strong>Đặt cả ba về 0</strong>. Nội dung ba nút không mất. Không thể hoàn tác bộ đếm đã đặt lại.</p>
+
+<h2>D. Đưa lên Internet miễn phí</h2>
+
+<p>Bản mới dùng <strong>Render Free + Supabase Free</strong>. Các bước chi tiết nằm trong <a href="docs/TRIEN-KHAI-MIEN-PHI.html">docs/TRIEN-KHAI-MIEN-PHI.md</a>; có bản HTML cùng tên để nhấp đúp mở đọc.</p>
+
+<ol>
+<li>Tạo project Supabase trong organization Free.</li>
+<li>Chạy toàn bộ tệp <code>supabase/001_sky.sql</code> trong SQL Editor của project.</li>
+<li>Đặt Project URL và Secret key trong <code>.env</code> để thử, hoặc Environment của Render để chạy online.</li>
+<li>Đưa mã nguồn lên repository GitHub riêng tư. Không đưa <code>.env</code>, <code>data</code>, <code>node_modules</code> hoặc bản sao lưu lên GitHub.</li>
+<li>Tạo Render Blueprint từ <code>render.yaml</code> mới. Kiểm tra <strong>plan Free</strong>, không có Disk hoặc Render Postgres.</li>
+<li>Sau khi Render báo Live, mở URL HTTPS được cấp + <code>/teacher</code>, tạo phòng và sao chép link học sinh.</li>
+</ol>
+
+<p>Supabase lưu phòng/ảnh độc lập với máy chủ Render, nên không dùng ổ tạm Render để giữ dữ liệu lớp. Phòng tạo trong SQLite cũ không tự chuyển: giữ nguyên <code>data</code> để xem lại hoặc tạo lại phòng trong Supabase. Render Free có thời gian khởi động khi vừa nghỉ, Supabase Free có hạn mức và có thể tạm dừng project ít hoạt động; mở kiểm tra trước buổi học.</p>
+
+<h2>E. Mật khẩu và sao lưu</h2>
+
+<h3>Đổi hoặc quên mật khẩu</h3>
+
+<ul>
+<li>Chạy trên máy: mở <code>.env</code>, sửa <code>TEACHER_PASSWORD</code>, lưu tệp rồi dừng/chạy lại máy chủ.</li>
+<li>Chạy trên Render: mở <strong>Environment</strong>, thay <code>TEACHER_PASSWORD</code>, lưu và triển khai lại.</li>
+<li>Thay mật khẩu sẽ vô hiệu hóa phiên giáo viên cũ. Dữ liệu phòng và ảnh vẫn còn.</li>
+<li>Không có chức năng gửi lại mật khẩu qua email; bạn kiểm soát mật khẩu từ cấu hình máy chủ.</li>
+</ul>
+
+<h3>Sao lưu SQLite trên máy</h3>
+
+<p>Nếu dùng Supabase, xem phần Sao lưu trong <code>docs/TRIEN-KHAI-MIEN-PHI.md</code>. Lệnh bên dưới chỉ dành cho SQLite.</p>
+
+<p>Trong Terminal của dự án, chạy:</p>
+
+<pre><code>npm run backup
+</code></pre>
+
+<p>Tệp sao lưu được tạo trong <code>DATA_DIR/backups/</code>. Bản sao chứa phòng, ảnh và bộ đếm. Lệnh dùng <code>VACUUM INTO</code> để có bản SQLite nhất quán, kể cả khi chương trình đang chạy.</p>
+
+<p>Không gửi database, <code>.env</code> hoặc bản sao lưu cho học sinh. Gói mã nguồn bàn giao không chứa mật khẩu thật hay dữ liệu lớp.</p>
+
+<p>Khôi phục trên máy cá nhân: dừng chương trình; sao chép toàn bộ thư mục <code>data</code> hiện tại sang một thư mục dự phòng khác; tạo thư mục <code>data</code> mới; chép tệp backup vào đó và đặt tên <code>sky.sqlite</code>; chạy lại. Không trộn tệp <code>-wal</code>/<code>-shm</code> cũ với database vừa khôi phục.</p>
+
+<h2>F. Lỗi thường gặp</h2>
+
+<table>
+<thead>
+<tr>
+  <th>Hiện tượng</th>
+  <th>Cách xử lý</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Mở <code>index.html</code> trực tiếp chỉ thấy trang trắng</td>
+  <td>Dùng <code>npm run dev</code>, hoặc <code>npm run build</code> rồi <code>npm start</code>. Đây là ứng dụng có máy chủ.</td>
+</tr>
+<tr>
+  <td>Terminal báo thiếu mật khẩu</td>
+  <td>Chạy <code>npm run setup</code>; kiểm tra <code>.env</code> ở cùng thư mục với <code>package.json</code>.</td>
+</tr>
+<tr>
+  <td><code>EADDRINUSE</code> hoặc cổng đã được dùng</td>
+  <td>Dừng lần chạy cũ bằng Ctrl + C. Dev dùng 5173 và 3001. Nếu đổi cổng API phải sửa cả proxy trong <code>vite.config.js</code>.</td>
+</tr>
+<tr>
+  <td>Không lưu được nút ảnh</td>
+  <td>Chọn một ảnh hợp lệ trước; nút “Chỉ ảnh” và “Chữ &amp; ảnh” cần có ảnh.</td>
+</tr>
+<tr>
+  <td>Ctrl + V không có ảnh</td>
+  <td>Clipboard có thể chỉ chứa URL hoặc tên tệp. Sao chép chính ảnh hoặc ảnh chụp màn hình, rồi bấm đúng vùng dán ảnh.</td>
+</tr>
+<tr>
+  <td>Tìm ảnh báo lỗi</td>
+  <td>Kiểm tra máy chủ truy cập được <code>commons.wikimedia.org</code>, <code>thumb.wikimedia.org</code>, <code>upload.wikimedia.org</code>; thử lại hoặc dùng ảnh từ máy.</td>
+</tr>
+<tr>
+  <td>Có ảnh nhưng học sinh chưa thấy</td>
+  <td>Bấm “Lưu thay đổi”; link học sinh dùng bản đã lưu, không dùng bản đang chỉnh.</td>
+</tr>
+<tr>
+  <td>Học sinh không mở được link localhost</td>
+  <td>Triển khai online ở phần D; gửi link HTTPS online.</td>
+</tr>
+<tr>
+  <td>Không có hiệu ứng trên máy chiếu</td>
+  <td>Kiểm tra đang mở đúng phòng, trạng thái kết nối và mạng có cho phép WebSocket/Socket.IO không.</td>
+</tr>
+<tr>
+  <td>Mất ảnh sau deploy</td>
+  <td>Kiểm tra <code>STORAGE_PROVIDER=supabase</code> cùng Project URL; xem trạng thái project và bucket trên Supabase.</td>
+</tr>
+<tr>
+  <td>Lưu báo xung đột</td>
+  <td>Có cửa sổ khác đã lưu phòng. Giữ lại phần chữ bạn cần, tải lại trang rồi sửa trên bản mới.</td>
+</tr>
+<tr>
+  <td>Mật khẩu đúng nhưng online không giữ đăng nhập</td>
+  <td>Dùng HTTPS và đúng <code>PUBLIC_URL</code>; kiểm tra cookie không bị chặn; <code>TRUST_PROXY=1</code> trên Render.</td>
+</tr>
+</tbody>
+</table>
+
+<h2>G. Kiểm tra kỹ thuật và chạy Docker tùy chọn</h2>
+
+<p>Bạn không phải chạy các bước này để sử dụng thường ngày. Dành cho người hỗ trợ kỹ thuật:</p>
+
+<pre><code>npm test
+npm run build
+npx playwright install chromium --only-shell
+npm run test:ui
+</code></pre>
+
+<p>Kiểm thử trình duyệt tự tạo cơ sở dữ liệu tạm; không sửa phòng thật. Bài tìm ảnh cần truy cập Internet. Xem báo cáo trong <code>docs/KIEM-THU.md</code>.</p>
+
+<p>Nếu đã cài Docker Desktop, chạy <code>npm run setup</code> rồi:</p>
+
+<pre><code>docker compose up --build -d
+</code></pre>
+
+<p>Mở http://localhost:3001/teacher. Dữ liệu nằm trong named volume <code>sky-data</code>. <code>docker compose down</code> dừng dịch vụ và giữ volume; <strong>không dùng <code>down -v</code> nếu muốn giữ dữ liệu</strong>. Compose này dùng để thử cục bộ. Đưa Docker lên Internet cần reverse proxy HTTPS, <code>PUBLIC_URL</code>, <code>NODE_ENV=production</code>, cấu hình <code>TRUST_PROXY</code> đúng số proxy và volume bền vững. Render là cách triển khai được hướng dẫn chính cho giáo viên.</p>
+
+<p>Tài liệu triển khai tham khảo, kiểm tra ngày 01/10/2026: https://render.com/docs/web-services, https://render.com/docs/disks, https://render.com/docs/websocket, https://render.com/docs/free.</p>
+</main></body></html>

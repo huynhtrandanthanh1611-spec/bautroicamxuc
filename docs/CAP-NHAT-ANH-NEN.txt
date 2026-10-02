@@ -1,0 +1,58 @@
+BẦU TRỜI CẢM XÚC — THÊM ẢNH NỀN
+
+Ảnh cầu vồng, mặt trời và mây bạn gửi đã được ghép vào màn hình học sinh,
+màn hình trình chiếu và khung xem trước của giáo viên.
+
+CẬP NHẬT DỰ ÁN ĐANG CHẠY TRÊN MÁY BẠN
+
+1. Tải cap-nhat-anh-nen.zip rồi GIẢI NÉN ra một thư mục bình thường.
+   Không mở/chỉnh sửa các tệp ngay bên trong WinRAR.
+
+2. Mở thư mục cap-nhat-anh-nen vừa giải nén. Chọn cả hai thư mục:
+   - public
+   - src
+   Bấm Ctrl + C.
+
+3. Trong File Explorer của Windows, mở thư mục dự án hiện tại:
+   Downloads > Website Bầu trời cảm xúc > bau-troi-cam-xuc
+   Đây phải là thư mục đang có package.json, public, src và server.
+   Bấm Ctrl + V ngay tại đây. Khi Windows hỏi, chọn
+   "Replace the files in the destination" (Thay thế tệp trong thư mục đích).
+
+   Kết quả đúng:
+   - public/images/bau-troi-cam-xuc.png
+   - src/styles.css (đã cập nhật)
+
+4. Nếu lệnh npm.cmd run dev vẫn đang chạy, quay lại Chrome và nhấn
+   Ctrl + F5 để tải lại trang. Nếu đã tắt website, trong Terminal tại
+   thư mục bau-troi-cam-xuc, chạy:
+
+   npm.cmd run dev
+
+   Sau đó vào http://localhost:5173/teacher và mở phòng đã tạo.
+
+5. Ảnh nền hiện trong khung xem trước. Bấm "Mở trình chiếu" để xem lớn;
+   mở link học sinh trên cùng máy để kiểm tra ba nút.
+
+Bản cập nhật chỉ thay styles.css và thêm tệp ảnh nền. Không cần chạy lại
+npm ci hoặc npm run setup; giữ nguyên .env và thư mục data đang có.
+Chưa đưa website lên mạng thì link localhost vẫn chỉ dùng trên máy bạn.
+
+ĐỔI SANG ẢNH KHÁC SAU NÀY
+
+Cách đơn giản: dùng một ảnh PNG ngang tỉ lệ gần 16:9, đặt tên chính xác
+bau-troi-cam-xuc.png rồi thay ảnh trong public/images.
+Đây là tên tệp thật gồm đuôi .png; không đổi đuôi JPG thành PNG bằng đổi tên.
+Nếu dùng JPG hoặc WebP, sửa đường dẫn --sky-art trong src/styles.css cho
+trùng tên và đuôi tệp mới. Tìm bằng Ctrl + F từ khóa --sky-art.
+
+Màn hình ngang dùng ảnh phủ nền và giữ tỉ lệ. Trên màn hình dọc, CSS dùng
+phần trên và phần dưới của ảnh 16:9 làm hai lớp trang trí, có chuyển mờ
+vào nền xanh ở giữa. Ba nút và hiệu ứng bay luôn nằm phía trên ảnh nền.
+Các lớp nền không chặn thao tác bấm.
+
+KHI TRIỂN KHAI LÊN MẠNG
+
+Đưa cả src/styles.css và public/images/bau-troi-cam-xuc.png lên cùng mã
+nguồn của dự án rồi build/deploy lại. Ảnh được phục vụ từ chính website,
+không phụ thuộc vào đường dẫn tệp trên máy giáo viên.
