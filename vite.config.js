@@ -1,15 +1,8 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-
+import { defineConfig } from 'vite';
 export default defineConfig({
-  plugins: [react()],
-  server: {
-    port: 5173,
-    strictPort: true,
-    proxy: {
-      "/api": "http://127.0.0.1:3001",
-      "/media": "http://127.0.0.1:3001",
-      "/socket.io": { target: "http://127.0.0.1:3001", ws: true },
-    },
-  },
+ root:'dist',
+ // Relative URLs support both username.github.io/ and username.github.io/repository/.
+ base:'./',
+ build:{outDir:'../build',emptyOutDir:true,target:'es2022',assetsInlineLimit:0},
+ server:{host:'0.0.0.0',allowedHosts:['terminal.local']}
 });

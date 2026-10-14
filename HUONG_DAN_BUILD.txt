@@ -1,0 +1,20 @@
+VÒNG QUAY MAY MẮN — MÃ NGUỒN ĐẦY ĐỦ
+Bản không có chibi, giữ nguyên chức năng quay, ảnh, nhạc, chia sẻ và chơi lại.
+
+1. Giải nén toàn bộ thư mục.
+2. Cài Node.js phiên bản 22.12 trở lên.
+3. Mở Terminal trong thư mục vong-quay-may-man và chạy:
+   npm ci
+   npm run dev
+4. Chỉnh sửa:
+   dist/index.html: cấu trúc giao diện
+   dist/styles.css và dist/viewport.css: màu sắc, kích thước, bố cục
+   dist/app.js: các chức năng chính
+5. Xuất bản HTML/CSS/JavaScript tĩnh:
+   npm run build
+6. Kết quả nằm trong build/. Tệp chính là build/index.html.
+   Khi đưa lên host, tải toàn bộ NỘI DUNG thư mục build/, gồm assets/ và licenses/.
+   Không chỉ tải riêng index.html vì trang cần CSS, JavaScript và font chữ đi kèm.
+
+Đây là website tĩnh, không cần backend. Xem DEPLOY_GITHUB_PAGES.md để triển khai GitHub Pages.
+Mã nguồn đối chiếu với commit GitHub: 45d89da963d478f0ae34a8dea7af1ab95fdd8891.
